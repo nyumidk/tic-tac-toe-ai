@@ -61,7 +61,7 @@ AI plays chosen cell
 | DFS | Goes deep before wide — may miss faster wins |
 | UCS | Identical to BFS when all move costs are equal (they are here) |
 | Greedy / A* | Require a heuristic — no reliable admissible heuristic for Tic-Tac-Toe |
-| **BFS** | ✅ Complete, finds shallowest win, no heuristic needed, feasible state space |
+| **BFS** | Complete, finds shallowest win, no heuristic needed, feasible state space |
 
 ---
 

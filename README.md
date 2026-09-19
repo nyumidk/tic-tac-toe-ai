@@ -81,7 +81,7 @@ tic-tac-toe-ai/
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/<your-username>/tic-tac-toe-ai.git
+git clone https://github.com/nyumidk/tic-tac-toe-ai.git
 cd tic-tac-toe-ai
 ```
 

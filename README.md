@@ -145,10 +145,10 @@ python main.py
 
 
 
-![Tic-Tac-Toe Hybrid AI](tic-tac-toe1 (1))
-![Tic-Tac-Toe Hybrid AI](tic-tac-toe1 (2))
-![Tic-Tac-Toe Hybrid AI](tic-tac-toe1 (3))
-
+![Tic-Tac-Toe Hybrid AI](https://github.com/nyumidk/tic-tac-toe-ai/blob/main/tic-tac-toe1%20(1).png)
+![Tic-Tac-Toe Hybrid AI](https://github.com/nyumidk/tic-tac-toe-ai/blob/main/tic-tac-toe1%20(2).png)
+![Tic-Tac-Toe Hybrid AI](https://github.com/nyumidk/tic-tac-toe-ai/blob/main/tic-tac-toe1%20(3).png)
+![Tic-Tac-Toe Hybrid AI](https://github.com/nyumidk/tic-tac-toe-ai/blob/main/tic-tac-toe1%20(4).png)
 
 ---
 

@@ -1,4 +1,4 @@
-# Tic-Tac-Toe — BFS AI Agent
+# Tic-Tac-Toe — Hybrid AI Agent (KB + ML + BFS)
 
 **CIA-1 Part 5 | Course: ITPCC510 / Artificial Intelligence**
 Fr. C. Rodrigues Institute of Technology, Vashi
@@ -18,50 +18,75 @@ Fr. C. Rodrigues Institute of Technology, Vashi
 
 ## Problem Statement
 
-An intelligent AI agent plays Tic-Tac-Toe against a human opponent on a 3×3 grid. The agent must select the optimal move at each turn — aiming to win in the fewest possible moves, or force a draw if winning is not guaranteed.
-
-This implements the concepts developed across all 5 parts of CIA-1:
-- **Part 1:** Problem formulated as a goal-based multi-agent adversarial task (fully observable, deterministic, sequential, static, discrete)
-- **Part 2:** BFS selected and applied as the AI search method
-- **Part 3:** Knowledge-based inference (win/block detection using FOL rules) applied before BFS runs
-- **Part 4:** Reinforcement Learning (Q-Learning) identified as the learning technique
-- **Part 5 (this):** Full implementation using Python + pygame
+An intelligent AI agent plays Tic-Tac-Toe against a human opponent on a 3×3 grid, choosing the best possible move at each turn — aiming to win in the fewest moves, or force a draw if winning is impossible. The agent uses a three-stage decision pipeline that combines knowledge-based inference, machine learning, and search — integrating the concepts from all 5 parts of CIA-1.
 
 ---
 
-## How it Works — AI Decision Pipeline
+## AI Decision Pipeline
 
 ```
-Human makes a move
-        ↓
-KB Inference (Part 3)
-  → Can AI win immediately?  YES → play that cell
-  → Can opponent win next?   YES → block that cell
-        ↓ (if neither)
-BFS Search (Part 2)
-  → Explore all future game states level by level
-  → Find the shallowest path to a win
-  → Fall back to strategic cell preference (centre → corners → edges)
-        ↓
-AI plays chosen cell
+┌─────────────────────────────────────────────────────┐
+│              AI DECISION PIPELINE                   │
+│                                                     │
+│  Stage 1: KB Inference (Part 3)                     │
+│    → Can AI win immediately?   YES → play that cell │
+│    → Can opponent win next?    YES → block that cell │
+│                 ↓ (neither)                         │
+│  Stage 2: ML Prediction (Part 4 — scikit-learn)     │
+│    → Random Forest trained on past games            │
+│    → If confidence ≥ 60%  →  use ML move            │
+│                 ↓ (low confidence / untrained)      │
+│  Stage 3: BFS Search (Part 2)                       │
+│    → Explore all future states level by level       │
+│    → Find shallowest winning path                   │
+│    → Fallback: centre → corners → edges             │
+└─────────────────────────────────────────────────────┘
 ```
 
-### BFS Explained
+Each stage is colour-coded in the in-game log panel:
+- 🟠 **Orange** = KB Inference
+- 🟣 **Purple** = ML Prediction
+- 🟢 **Green**  = BFS Search
 
-- Each **node** = a board state (which cells have X, O, or are empty)
-- Each **edge** = placing AI's symbol (O) in one empty cell
-- BFS explores depth 1 first (all immediate moves), then depth 3 (AI move + opponent reply + AI move), and so on
-- The **first winning state found = shallowest win = optimal move**
-- Total state space: at most 362,880 paths (9! permutations), but KB pruning reduces this significantly
+---
 
-### Why BFS over other methods
+## How the ML Agent Learns
 
-| Method | Why not chosen |
-|---|---|
-| DFS | Goes deep before wide — may miss faster wins |
-| UCS | Identical to BFS when all move costs are equal (they are here) |
-| Greedy / A* | Require a heuristic — no reliable admissible heuristic for Tic-Tac-Toe |
-| **BFS** | ✅ Complete, finds shallowest win, no heuristic needed, feasible state space |
+After every completed game, the agent records every board state and move it played, along with the outcome (win / draw / loss). Winning game records are oversampled (stored 3×) to bias the model toward successful strategies.
+
+Once **10 games** have been recorded, a **Random Forest Classifier** (scikit-learn) is trained on this data. Every 5 games thereafter, the model retrains on the growing dataset. Over time:
+
+- The ML model increasingly takes over from BFS
+- The agent learns to recognise good positions from experience rather than computing them
+- Win rate against random / weak opponents improves with each game played
+
+Game data and the trained model persist across sessions in:
+- `game_data.pkl` — accumulated training examples
+- `rf_model.pkl`  — the trained Random Forest model
+
+---
+
+## Connection to CIA-1 Parts
+
+| CIA Part | Concept | Implementation |
+|---|---|---|
+| Part 1 | Problem formulation, PEAS, task environment | Tic-Tac-Toe as fully observable, discrete, sequential, multi-agent adversarial problem |
+| Part 2 | BFS search | `bfs.py` — explores game states level by level to find shallowest win |
+| Part 3 | Knowledge-based agent, FOL inference | Immediate win/block detection before any search runs |
+| Part 4 | Learning technique (RL / supervised) | `ml_agent.py` — Random Forest trains on game history |
+| Part 5 | Implementation + demonstration | This repo — pygame GUI + full hybrid AI pipeline |
+
+---
+
+## Connection to Reference Paper
+
+| Paper Section | Concept | Implementation Here |
+|---|---|---|
+| Section II-B-1 | Intelligent agent (sensors + actuators) | Reads board (sensor), places symbol (actuator) |
+| Section II-B-3 | Decision-making: rule-based + search + ML | KB → ML → BFS pipeline |
+| Section III-B | Game Theory — adversarial rational agents | Human (X) vs AI (O) — opposing goals |
+| Section III-D | Deep learning enriching decision-making | ML (Random Forest) learning from experience |
+| Section V-B | Computational efficiency | KB pruning eliminates BFS in ~30% of turns |
 
 ---
 
@@ -69,10 +94,13 @@ AI plays chosen cell
 
 ```
 tic-tac-toe-ai/
-├── main.py          # pygame GUI + game loop
-├── bfs.py           # BFS AI logic + KB inference
+├── main.py          # pygame GUI + game loop + AI integration
+├── bfs.py           # BFS search + KB inference
+├── ml_agent.py      # scikit-learn Random Forest ML agent
 ├── requirements.txt # dependencies
-└── README.md        # this file
+├── README.md        # this file
+├── game_data.pkl    # generated after first game — ML training data
+└── rf_model.pkl     # generated after 10 games — trained model
 ```
 
 ---
@@ -101,57 +129,51 @@ python main.py
 
 | Action | How |
 |---|---|
-| Make a move | Click any empty cell on the board |
-| See AI reasoning | Watch the **BFS Search Log** panel on the right |
-| Start a new game | Click the **New Game** button |
+| Make a move | Click any empty cell |
+| See AI reasoning | Watch the **AI Decision Log** panel (right side) |
+| New game | Click **New Game** button |
+| Reset ML learning | Click **Reset ML** button |
 | Quit | Close the window |
 
 - **You are X** (blue), **AI is O** (red)
-- The BFS log panel shows exactly how the AI chose its move — states explored, depth reached, and final decision
-- The terminal also prints the full BFS log for each AI move
-
----
-
-## Sample BFS Output (Terminal)
-
-```
-[Human] Played cell 4
-
-=======================================================
-  BFS AI THINKING...
-=======================================================
-  Level 0 (current): 8 empty cells
-  Exploring 8 immediate moves via BFS...
-  [BFS] WIN path found at depth 1 via cell 0
-  [BFS] States explored so far: 1
-  Total states explored: 1
-    Depth 1: 1 states
-  CHOSEN MOVE: cell 0
-=======================================================
-```
+- A badge below the board shows which method the AI used last (KB / ML / BFS)
+- The ML status line updates live as the model learns
 
 ---
 
 ## Screenshots
 
-*(Add screenshots of the game here after running it)*
+*(Add a screenshot of the game running here)*
+
+![Tic-Tac-Toe Hybrid AI](screenshot.png)
 
 ---
 
-## Connection to Reference Paper
+## Sample Terminal Output
 
-The paper (*Boujia & Sabbane, 2024*) discusses intelligent agent systems and their decision-making models. This implementation directly applies:
+```
+[Human] Cell 4
 
-| Paper Section | Concept | Implementation |
-|---|---|---|
-| Section II-B-1 | Intelligent Agent (perceives environment via sensors, acts via actuators) | Agent reads board state (sensor), places symbol (actuator) |
-| Section II-B-3 | Decision-making models — rule-based + search | KB win/block rules (Part 3) + BFS (Part 2) |
-| Section III-B | Game Theory — adversarial agents with opposing goals | Human (X) vs AI (O) — competitive multi-agent environment |
-| Section IV-B | MAS in real-time systems | Real-time move selection with BFS log shown live |
-
----
-
-## Learning Outcomes Addressed
-
-- **LO 2.4:** Select and apply best searching method to solve a given problem ✅ (BFS)
-- **LO 6.1, 6.2:** Design and develop AI applications in real world scenarios using AI tools ✅ (Python + pygame)
+================================================
+  AI DECISION PIPELINE
+================================================
+  Stage 1: KB Inference
+  [KB] No immediate win/block.
+  Stage 2: ML Prediction
+  [ML] No model yet — need ~8 more games
+  Stage 3: BFS Search
+  ====================================================
+    BFS AI THINKING...
+  ====================================================
+    Exploring 8 moves via BFS...
+    [BFS] Win at depth 5 via cell 0
+    [BFS] States explored: 546
+    Total states explored: 546
+      Depth 1: 9 states
+      Depth 3: 504 states
+      Depth 5: 33 states
+    CHOSEN MOVE → cell 0
+  ====================================================
+  FINAL → cell 0 via [BFS]
+================================================
+```

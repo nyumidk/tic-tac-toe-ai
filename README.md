@@ -134,7 +134,7 @@ python main.py
 
 ## Screenshots
 
-*(Add screenshots of the game here after running it)*
+![Tic-Tac-Toe BFS AI](tic-tac-toe-screenshot.png)
 
 ---
 
@@ -153,5 +153,5 @@ The paper (*Boujia & Sabbane, 2024*) discusses intelligent agent systems and the
 
 ## Learning Outcomes Addressed
 
-- **LO 2.4:** Select and apply best searching method to solve a given problem ✅ (BFS)
-- **LO 6.1, 6.2:** Design and develop AI applications in real world scenarios using AI tools ✅ (Python + pygame)
+- **LO 2.4:** Select and apply best searching method to solve a given problem - (BFS)
+- **LO 6.1, 6.2:** Design and develop AI applications in real world scenarios using AI tools - (Python + pygame)

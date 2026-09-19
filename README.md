@@ -109,7 +109,7 @@ tic-tac-toe-ai/
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/<your-username>/tic-tac-toe-ai.git
+git clone https://github.com/nyumidk/tic-tac-toe-ai.git
 cd tic-tac-toe-ai
 ```
 
@@ -143,9 +143,12 @@ python main.py
 
 ## Screenshots
 
-*(Add a screenshot of the game running here)*
 
-![Tic-Tac-Toe Hybrid AI](screenshot.png)
+
+![Tic-Tac-Toe Hybrid AI](tic-tac-toe1 (1))
+![Tic-Tac-Toe Hybrid AI](tic-tac-toe1 (2))
+![Tic-Tac-Toe Hybrid AI](tic-tac-toe1 (3))
+
 
 ---
 
